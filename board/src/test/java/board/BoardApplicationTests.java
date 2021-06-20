@@ -19,6 +19,7 @@ class BoardApplicationTests {
 	@Test
 	public void testSqlSession() throws Exception{
 		System.out.println(sqlSession.toString());
+		System.out.println("wewwewweweewwe");
 	}
 
 }
