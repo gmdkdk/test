@@ -1,6 +1,7 @@
 package board.board.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Data;
 
@@ -14,5 +15,6 @@ public class BoardDto {
 	private LocalDateTime createdDatetime;
 	private String updatorId;
 	private LocalDateTime updatedDatetime;
+	private List<BoardFileDto> fileList;
 	
 }

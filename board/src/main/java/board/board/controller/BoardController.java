@@ -1,17 +1,25 @@
 package board.board.controller;
 
+import java.io.File;
+import java.net.URLEncoder;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import board.board.dto.BoardDto;
+import board.board.dto.BoardFileDto;
 import board.board.service.BoardService;
+import board.common.FileUtils;
 
 @Controller
 public class BoardController {
@@ -38,8 +46,8 @@ public class BoardController {
 	}
 	
 	@RequestMapping("/board/insertBoard.do")
-	public String insertBoard(BoardDto board) throws Exception{
-		boardService.insertBoard(board);
+	public String insertBoard(BoardDto board, MultipartHttpServletRequest multipartHttpServletRequest) throws Exception{
+		boardService.insertBoard(board, multipartHttpServletRequest);
 		return "redirect:/board/openBoardList.do";
 	}
 	
@@ -65,4 +73,22 @@ public class BoardController {
 		return "redirect:/board/openBoardList.do";
 	}
 	
+	@RequestMapping("/board/downloadBoardFile.do")
+	public void downloadBoardFile(@RequestParam int idx, @RequestParam int boardIdx, HttpServletResponse response) throws Exception{
+		BoardFileDto boardFile = boardService.selectBoardFileInfomation(idx, boardIdx);
+		if(ObjectUtils.isEmpty(boardFile) == false) {
+			String fileName = boardFile.getOriginalFileName();
+			
+			byte[] files = org.apache.commons.io.FileUtils.readFileToByteArray(new File(boardFile.getStoredFilePath()));
+			
+			response.setContentType("application/octet-stream");
+			response.setContentLength(files.length);
+			response.setHeader("Content-Disposition", "attachment; fileName=\"" + URLEncoder.encode(fileName, "UTF-8") + "\";");
+			response.setHeader("Content-Transfer-Encoding", "binary");
+			
+			response.getOutputStream().write(files);
+			response.getOutputStream().flush();
+			response.getOutputStream().close();
+		}
+	}
 }
